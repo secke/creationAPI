@@ -33,7 +33,7 @@ class User(base.Base):
     etat=Column(Integer)
     
     def __init__(self,id,name,username,email,street,suite,city,zipcode,lat,lng,
-    phone, website, companyName,catchPhrase,companyBs,etat):
+        phone, website, companyName,catchPhrase,companyBs,etat):
         self.id=id
         self.name=name
         self.username=username
@@ -50,6 +50,34 @@ class User(base.Base):
         self.catchPhrase=catchPhrase
         self.companyBs=companyBs
         self.etat=etat
+
+    def users(result):
+    
+        result= [
+        {
+        "id":user.id,
+        "name":user.name,
+        "username":user.username,
+        "email":user.email,
+        "address":{
+            "street":user.street,
+            "suite":user.suite,
+            "city":user.city,
+            "zipcode":user.zipcode,
+            "geo":{
+                "lat":user.lat,
+                "long":user.lng
+            },
+            "phone":user.phone,
+            "websit":user.website
+        },
+        "company":{
+            "name":user.companyName,
+            "catchPhrase":user.catchPhrase,
+            "bs":user.companyBs
+        }
+        } for user in result.all() ]
+        return result
 
 ################## ALBUM #################################
 
