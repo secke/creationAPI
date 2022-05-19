@@ -1,5 +1,6 @@
 from crypt import methods
-import module,base
+from module import *
+from base import *
 from flask import Flask, jsonify, request
 
 
@@ -119,6 +120,42 @@ def get_all_todo():
         #    "completed":todo.completed
         }for todo in result])
     return jsonify(status="False")
+
+##################################################### Method post#####################################################
+@app.route('/api_groupe_7/users', methods=['POST'])
+def post_user():
+    data=request.get_json()
+    users=module.User(name=data['name'],username=data['username'],email=data["email"],street=data['street'],suite=data['suite'],city=data['city'],zipcode=data["zipcode"],lat=data['lat'],lng=data['lng'],phone=data["phone"],website=data['website'],companyName=data["companyName"],catchPhrase=data["catchPhrase"],companyBs=["companyBs"])
+    session.add(users)
+    session.commit()
+    session.close()
+    return jsonify(status="True",
+    result= [
+    {
+    "id":user.id,
+    "name":user.name,
+    "username":user.username,
+    "email":user.email,
+    "address":{
+        "street":user.street,
+        "suite":user.suite,
+        "city":user.city,
+        "zipcode":user.zipcode,
+        "geo":{
+            "lat":user.lat,
+            "long":user.lng
+        },
+        "phone":user.phone,
+        "websit":user.website
+    },
+    "company":{
+        "name":user.companyName,
+        "catchPhrase":user.catchPhrase,
+        "bs":user.companyBs
+    }
+    } for user in data.all() ])
+    return jsonify(status="False")
+
 
 
 if __name__ == '__main__':

@@ -46,3 +46,13 @@ def get_user_by_id(id):
         print(e)
         return False
 
+
+def get_todo_by_idUser(id):
+    try:
+        result = session.query(module.Todo).filter(module.Todo.userId==id).all()
+        return result
+    except Exception as e:
+        print(e)
+        return False
+
+

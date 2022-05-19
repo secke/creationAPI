@@ -15,7 +15,7 @@ import base
 
 class User(base.Base):
     __tablename__='users'
-    id=Column(Integer, primary_key=True)
+    id=Column(Integer, primary_key=True,autoincrement=True)
     name=Column(String(50))
     username=Column(String(50))
     email=Column(String(50))
@@ -35,6 +35,24 @@ class User(base.Base):
     def __init__(self,id,name,username,email,street,suite,city,zipcode,lat,lng,
     phone, website, companyName,catchPhrase,companyBs,etat):
         self.id=id
+        self.name=name
+        self.username=username
+        self.email=email
+        self.street=street
+        self.suite=suite
+        self.city=city
+        self.zipcode=zipcode
+        self.lat=lat
+        self.lng=lng
+        self.phone=phone
+        self.website=website
+        self.companyName=companyName
+        self.catchPhrase=catchPhrase
+        self.companyBs=companyBs
+        self.etat=etat
+    
+    def __init__(self,name,username,email,street,suite,city,zipcode,lat,lng,
+    phone, website, companyName,catchPhrase,companyBs,etat):
         self.name=name
         self.username=username
         self.email=email
