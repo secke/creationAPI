@@ -1,7 +1,7 @@
 from model import *
 from base import *
 from flask import Flask, jsonify, request
-import model
+# import model
 
 
 app = Flask(__name__)
@@ -23,7 +23,7 @@ def get_all_users():
         return "Ok"
 
 
-@app.route('/api_groupe_7/users/<int:idUser>', methods=['GET'])
+@app.get('/api_groupe_7/users/<int:idUser>')
 def get_all_user_id(idUser):
     result = model.base.get_infos_by_id(model.User,idUser)
     print('result : ',result,idUser)
@@ -68,7 +68,6 @@ def get_post_by_id(postId):
         session.commit()
         return "okey"
     else:
-        data=request.get_json()
         npost=session.query(Post).get(postId)
         trash=TrashPost(npost.userId,npost.id,npost.title,npost.body)
         session.add(trash)
@@ -78,11 +77,6 @@ def get_post_by_id(postId):
         session.delete(npost)
         session.commit()
         return "okey"
-
-
-
-
-
 
 
 ########################################################## COMMMENT #############################################################
@@ -129,15 +123,50 @@ def get_all_album():
         return "ok"
 
 
-@app.route('/api_groupe_7/albums/<int:albumId>', methods=['GET'])
+@app.route('/api_groupe_7/albums/<int:albumId>', methods=['GET','PUT','DELETE'])
 def get_album_by_id(albumId):
-
     result=model.base.get_infos_by_id(model.Album, albumId)
+    if request.method=='GET':
     
-    if result:
-        return jsonify(status="True", albums=model.base.albums(result))
-    
-    return jsonify(status="False")
+        if result:
+            return jsonify(status="True", albums=model.base.albums(result))
+        
+        return jsonify(status="False")
+
+    elif request.method=='PUT':
+        data = request.get_json()
+        nalbum=session.query(Album).get(albumId)
+        nalbum.title=data['title']
+        nalbum.id=data['id']
+        nalbum.userId=data["userId"]
+        session.commit()
+        return 'Bingo'
+    else:
+        nalbum=session.query(Album).get(albumId)
+        try:
+            trashalbum=TrashAlbum( nalbum.userId, nalbum.id, nalbum.title)
+            session.add(trashalbum)
+            session.delete(nalbum)
+            session.commit()
+        except:
+            session.delete(nalbum)
+            session.commit()
+            pass
+
+        photos=session.query(Photo).filter(Photo.albumId==albumId).all()
+
+        for photo in photos:
+            trashphoto=TrashPhoto(photo.albumId, photo.id, photo.title, photo.url, photo.thumbnailUrl)
+            try:
+                session.add(trashphoto)
+                session.delete(photo)
+
+                session.commit()
+            except :
+                print('e')
+                pass
+        return 'Bingo'
+
 
 
 ###################################################################### PHOTOS##############################################################
@@ -150,14 +179,31 @@ def get_all_photo():
         return jsonify(status="True", photos=model.base.photos(result))
     return jsonify(status="False")
 
-@app.route('/api_groupe_7/photos/<int:photoId>', methods=['GET'])
+@app.route('/api_groupe_7/photos/<int:photoId>', methods=['GET', 'PUT', 'DELETE'])
 def get_photo_by_id(photoId):
+    if request.method=='GET':
+        result=model.base.get_infos_by_id(model.Photo, photoId)
+        
+        if result:
+            return jsonify(status="True", photos=model.base.photos(result))
+        return jsonify(status="False")
+    elif request.method=='PUT':
+        data = request.get_json()
+        nphoto=session.query(Photo).get(photoId)
+        nphoto.title=data['title']
+        nphoto.id=data['id']
+        nphoto.albumId=data["albumId"]
+        nphoto.url=data["url"]
+        nphoto.thumbnailUrl=data["thumbnailUrl"]
+        session.commit()
+        return 'Bingo'
+    else:
+        nphoto=session.query(Photo).get(photoId)
+        session.add(nphoto)
+        session.delete(nphoto)
+        session.commit()
+        return 'Bingo'
 
-    result=model.base.get_infos_by_id(model.Photo, photoId)
-    
-    if result:
-        return jsonify(status="True", photos=model.base.photos(result))
-    return jsonify(status="False")
 
 @app.route('/api_groupe_7/todos', methods=['GET','POST'])
 def get_all_todo():

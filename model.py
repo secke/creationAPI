@@ -2,6 +2,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, String, ForeignKey, Integer , TEXT
 import requests
+from sqlalchemy.orm import *
 import base
 
 
@@ -22,7 +23,9 @@ class User(base.Base):
     companyName=Column(String(400))
     catchPhrase=Column(String(400))
     companyBs=Column(String(400))
-
+    # albums=relationship('Album', cascade = 'all, delete')
+    todos=relationship('Todo', cascade = 'all, delete')
+    posts=relationship('Post', cascade = 'all, delete')
     
     def __init__(self,id,name,username,email,street,suite,city,zipcode,lat,lng,
         phone, website, companyName,catchPhrase,companyBs):
@@ -43,36 +46,6 @@ class User(base.Base):
         self.companyBs=companyBs
     
 
-    def users(result):
-    
-        result= [
-        {
-        "id":user.id,
-        "name":user.name,
-        "username":user.username,
-        "email":user.email,
-        "address":{
-            "street":user.street,
-            "suite":user.suite,
-            "city":user.city,
-            "zipcode":user.zipcode,
-            "geo":{
-                "lat":user.lat,
-                "long":user.lng
-            },
-            "phone":user.phone,
-            "websit":user.website
-        },
-        "company":{
-            "name":user.companyName,
-            "catchPhrase":user.catchPhrase,
-            "bs":user.companyBs
-        }
-        } for user in result.all() ]
-        return result
-
-
-
 ################## ALBUM #################################
 
 class Album(base.Base):
@@ -81,7 +54,20 @@ class Album(base.Base):
     id=Column(Integer, primary_key=True)
     title=Column(String(100))
     etat=Column(Integer)
-    # photos=relationship("Photo")
+    photos=relationship("Photo")
+    photos=relationship("Photo", cascade='all, delete')
+    def __init__(self, userId, id, title):
+        self.userId=userId 
+        self.id=id
+        self.title=title
+
+################ TrashAlbum #######################################
+
+class TrashAlbum(base.Base):
+    __tablename__='trashalbum'
+    userId=Column(Integer)
+    id=Column(Integer, primary_key=True)
+    title=Column(String(100))
     def __init__(self, userId, id, title):
         self.userId=userId
         self.id=id
@@ -91,6 +77,23 @@ class Album(base.Base):
 
 class Photo(base.Base):
     __tablename__='photos'
+    albumId=Column(Integer, ForeignKey('album.id', ondelete='CASCADE'))
+    id=Column(Integer, primary_key=True)
+    title=Column(String(100))
+    url=Column(String(200))
+    thumbnailUrl=Column(String(200))
+    etat=Column(Integer)
+    def __init__(self, albumId, id, title, url, thumbnailUrl):
+        self.albumId=albumId
+        self.id=id
+        self.title=title
+        self.url=url
+        self.thumbnailUrl=thumbnailUrl
+
+################ TrashPhoto #######################################
+
+class TrashPhoto(base.Base):
+    __tablename__='trashphoto'
     albumId=Column(Integer, ForeignKey('album.id'))
     id=Column(Integer, primary_key=True)
     title=Column(String(100))
@@ -103,7 +106,8 @@ class Photo(base.Base):
         self.title=title
         self.url=url
         self.thumbnailUrl=thumbnailUrl
-      ############## TODOS ##############################
+
+############## TODOS ##############################
 
 class Todo(base.Base):
     __tablename__='todo'
@@ -170,6 +174,6 @@ class Comment(base.Base):
         self.email=email
         self.body=body
 
-
+base.initbase()
 
 

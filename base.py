@@ -15,7 +15,8 @@ engine=create_engine('postgresql://groupe7:test_123@localhost:5432/flask_db')
 base_session = sessionmaker(bind=engine,autocommit=False,autoflush=False)
 session = base_session()
 Base = declarative_base()
-Base.metadata.create_all(bind=engine)
+def initbase():
+    Base.metadata.create_all(bind=engine)
 
 
 
