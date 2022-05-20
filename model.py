@@ -3,12 +3,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, String, ForeignKey, Integer , TEXT
 import requests
 import base
-# engine = create_engine(('postgresql://groupe_7:test@localhost:5432/flask_api'))
-# base_session = sessionmaker(bind=engine,autocommit=False,autoflush=False)
- 
-# session = base_session()
- 
-# Base = declarative_base()
 
 
 class User(base.Base):
@@ -77,6 +71,8 @@ class User(base.Base):
         } for user in result.all() ]
         return result
 
+
+
 ################## ALBUM #################################
 
 class Album(base.Base):
@@ -138,8 +134,24 @@ class Post(base.Base):
         self.id=id
         self.title=title
         self.body=body
-  
+        
 
+
+#################################################Corbeille Post
+  
+class TrashPost(base.Base):
+    __tablename__='trashpost'
+    userId=Column(Integer, ForeignKey('users.id'))
+    id=Column(Integer, primary_key=True)
+    title=Column(String(200))
+    body=Column(TEXT)
+    etat=Column(Integer)
+    
+    def __init__(self, userId, id, title, body):
+        self.userId=userId
+        self.id=id
+        self.title=title
+        self.body=body
 
 
 ############# COMMENTS ##########################
@@ -157,5 +169,7 @@ class Comment(base.Base):
         self.name=name
         self.email=email
         self.body=body
+
+
 
 
