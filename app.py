@@ -47,6 +47,8 @@ def get_all_post():
         data=request.get_json()
         id_post=getId(model.Post)
         post=Post(userId=data["userId"],id=id_post,title=data["title"],body=data["body"])
+        base.session.add(post)
+        base.session.commit()
         postmethod(post)
         return "ok"
 
