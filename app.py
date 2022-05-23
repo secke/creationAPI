@@ -2,7 +2,7 @@ from unittest import result
 from model import *
 from base import *
 from flask import Flask, jsonify, request
-import model
+# import model
 
 
 app = Flask(__name__)
@@ -12,14 +12,14 @@ app = Flask(__name__)
 @app.route('/api_groupe_7/users', methods=['GET','POST'])
 def get_all_users():
     if request.method=='GET':
-        result = base.get_all(model.User)
+        result = base.get_all(User)
         if result:
             return jsonify(status="True", users = base.users(result) )
         return jsonify(status="False")
     else:
         data=request.get_json()
-        id_user=getId(model.User)
-        users=model.User(id=id_user,name=data['name'],username=data['username'],email=data["email"],street=data['street'],suite=data['suite'],city=data['city'],zipcode=data["zipcode"],lat=data['lat'],lng=data['lng'],phone=data["phone"],website=data['website'],companyName=data["companyName"],catchPhrase=data["catchPhrase"],companyBs=["companyBs"])
+        id_user=getId(User)
+        users=User(id=id_user,name=data['name'],username=data['username'],email=data["email"],street=data['street'],suite=data['suite'],city=data['city'],zipcode=data["zipcode"],lat=data['lat'],lng=data['lng'],phone=data["phone"],website=data['website'],companyName=data["companyName"],catchPhrase=data["catchPhrase"],companyBs=["companyBs"])
         postmethod(users)
         return "Ok"
 
@@ -27,7 +27,7 @@ def get_all_users():
 @app.route('/api_groupe_7/users/<int:idUser>', methods=['GET','PUT','DELETE'])
 def get_all_user_id(idUser):
     if request.method=='GET':
-        result = base.get_infos_by_id(model.User,idUser)
+        result = base.get_infos_by_id(User,idUser)
         if result:
             return jsonify(status="True", users = base.users(result) )
         
@@ -131,13 +131,13 @@ def get_all_user_id_posts(idUser):
 @app.route('/api_groupe_7/posts', methods=['GET','POST'])
 def get_all_post():
     if request.method=="GET":
-        result=base.get_all(model.Post)
+        result=base.get_all(Post)
         if result:
             return jsonify(status="True",posts = base.posts(result))
         return jsonify(status="False")
     else:
         data=request.get_json()
-        id_post=getId(model.Post)
+        id_post=getId(Post)
         post=Post(userId=data["userId"],id=id_post,title=data["title"],body=data["body"])
         postmethod(post)
         return "ok"
@@ -146,7 +146,7 @@ def get_all_post():
 @app.route('/api_groupe_7/posts/<int:postId>', methods=['GET','PUT','DELETE'])
 def get_post_by_id(postId):
     if request.method=='GET':
-        result=base.get_infos_by_id(model.Post, postId)
+        result=base.get_infos_by_id(Post, postId)
         if result:
             return jsonify(status="True",posts = base.posts(result))
         return jsonify(status="False")
@@ -200,14 +200,14 @@ def comment_post(postId):
 @app.route('/api_groupe_7/comments', methods=['GET','POST'])
 def get_all_comment():
     if request.method=='GET':
-        result=base.get_all(model.Comment)
+        result=base.get_all(Comment)
         
         if result:
             return jsonify(status="True", comments=base.comments(result))
         return jsonify(status="False")
     else:
         data=request.get_json()
-        id_comment=getId(model.Comment)
+        id_comment=getId(Comment)
         comment=Comment(postId=data["postId"],id=id_comment,name=data["name"],email=data["email"],body=data["body"])
         postmethod(comment)
         return "ok"
@@ -215,7 +215,7 @@ def get_all_comment():
 @app.route('/api_groupe_7/comments/<int:commentId>', methods=['GET','PUT','DELETE'])
 def get_comment_by_id(commentId):
     if request.method=='GET':
-        result=base.get_infos_by_id(model.Comment, commentId)
+        result=base.get_infos_by_id(Comment, commentId)
         if result:
             return jsonify(status="True", comments=base.comments(result))
         return jsonify(status="False")
@@ -245,7 +245,7 @@ def get_comment_by_id(commentId):
 @app.route('/api_groupe_7/albums', methods=['GET','POST'])
 def get_all_album():
     if request.method=='GET':
-        result=base.get_all(model.Album)
+        result=base.get_all(Album)
         
         if result:
             return jsonify(status="True", albums=base.albums(result))
@@ -253,16 +253,16 @@ def get_all_album():
         return jsonify(status="False")
     else:
         data=request.get_json()
-        id_album=getId(model.Album)
+        id_album=getId(Album)
         album=Album(userId=data["userId"],id=id_album,title=data["title"])
         postmethod(album)
         return "ok"
 
 
-@app.route('/api_groupe_7/albums/<int:albumId>', methods=['GET'])
+@app.route('/api_groupe_7/albums/<int:albumId>', methods=['GET','PUT','DELETE'])
 def get_album_by_id(albumId):
 
-    result=base.get_infos_by_id(model.Album, albumId)
+    result=base.get_infos_by_id(Album, albumId)
     
     if result:
         return jsonify(status="True", albums=base.albums(result))
@@ -274,25 +274,42 @@ def get_album_by_id(albumId):
 @app.route('/api_groupe_7/photos', methods=['GET'])
 def get_all_photo():
 
-    result=base.get_all(model.Photo)
+    result=base.get_all(Photo)
     
     if result:
         return jsonify(status="True", photos=base.photos(result))
     return jsonify(status="False")
 
-@app.route('/api_groupe_7/photos/<int:photoId>', methods=['GET'])
+@app.route('/api_groupe_7/photos/<int:photoId>', methods=['GET', 'PUT', 'DELETE'])
 def get_photo_by_id(photoId):
+    if request.method=='GET':
+        result=base.get_infos_by_id(Photo, photoId)
+        
+        if result:
+            return jsonify(status="True", photos=base.photos(result))
+        return jsonify(status="False")
+    elif request.method=='PUT':
+        data = request.get_json()
+        nphoto=session.query(Photo).get(photoId)
+        nphoto.title=data['title']
+        nphoto.id=data['id']
+        nphoto.albumId=data["albumId"]
+        nphoto.url=data["url"]
+        nphoto.thumbnailUrl=data["thumbnailUrl"]
+        session.commit()
+        return 'Bingo'
+    else:
+        nphoto=session.query(Photo).get(photoId)
+        session.add(nphoto)
+        session.delete(nphoto)
+        session.commit()
+        return 'Bingo'
 
-    result=base.get_infos_by_id(model.Photo, photoId)
-    
-    if result:
-        return jsonify(status="True", photos=base.photos(result))
-    return jsonify(status="False")
 
 @app.route('/api_groupe_7/todos', methods=['GET','POST'])
 def get_all_todo():
     if request.method=='GET':
-        result=base.get_all(model.Todo)
+        result=base.get_all(Todo)
         
         if result:
             return jsonify(status="True", todos = base.todos(result))

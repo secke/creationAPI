@@ -1,4 +1,6 @@
 from sqlalchemy import create_engine, Column, String, ForeignKey, Integer , TEXT
+import requests
+from sqlalchemy.orm import *
 import base
 from sqlalchemy.orm import *
 
@@ -121,6 +123,23 @@ class TrashAlbum(base.Base):
 
 class Photo(base.Base):
     __tablename__='photos'
+    albumId=Column(Integer, ForeignKey('album.id', ondelete='CASCADE'))
+    id=Column(Integer, primary_key=True)
+    title=Column(String(100))
+    url=Column(String(200))
+    thumbnailUrl=Column(String(200))
+    etat=Column(Integer)
+    def __init__(self, albumId, id, title, url, thumbnailUrl):
+        self.albumId=albumId
+        self.id=id
+        self.title=title
+        self.url=url
+        self.thumbnailUrl=thumbnailUrl
+
+################ TrashPhoto #######################################
+
+class TrashPhoto(base.Base):
+    __tablename__='trashphoto'
     albumId=Column(Integer, ForeignKey('album.id'))
     id=Column(Integer, primary_key=True)
     title=Column(String(100))

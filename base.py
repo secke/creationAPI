@@ -128,7 +128,9 @@ def postmethod(requete):
     session.add(requete)
     session.commit()
 
+#########################"
 
+    
 
     
 
