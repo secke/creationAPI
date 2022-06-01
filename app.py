@@ -1,11 +1,12 @@
-from unittest import result
 from model import *
 from base import *
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 # import model
 
 
 app = Flask(__name__)
+CORS(app)
 
 ######################################## USERS##########################################################################
  
@@ -323,4 +324,4 @@ def get_all_todo():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', debug=True)
