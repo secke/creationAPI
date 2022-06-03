@@ -2,11 +2,13 @@ from unittest import result
 from model import *
 from base import *
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 # import model
 
 
 app = Flask(__name__)
-
+CORS(app)
+# CORS(app, resources={"http://localhost:5002/api_groupe_7/": {"origins": "*"}})
 ######################################## USERS##########################################################################
  
 @app.route('/api_groupe_7/users', methods=['GET','POST'])
@@ -113,7 +115,7 @@ def get_all_user_id_comments(idUser):
 @app.route('/api_groupe_7/users/<int:idUser>/posts', methods=['GET','DELETE'])
 def get_all_user_id_posts(idUser):
     result=session.query(Post).filter(Post.userId==idUser)
-    if request.method=='GET': 
+    if request.method=='GET':
         if result:
             return jsonify(status="True", posts=base.posts(result))
         return jsonify(status="False")

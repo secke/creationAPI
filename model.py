@@ -86,8 +86,6 @@ class TrashUser(base.Base):
         self.companyName=companyName
         self.catchPhrase=catchPhrase
         self.companyBs=companyBs
-    
-
 
 
 ################## ALBUM #################################
@@ -267,38 +265,34 @@ class TrashComment(base.Base):
         self.email=email
         self.body=body
 
-base.initbase()
 
-
-
-
-def users(result):
+# def users(result):
     
-        result= [
-        {
-        "id":user.id,
-        "name":user.name,
-        "username":user.username,
-        "email":user.email,
-        "address":{
-            "street":user.street,
-            "suite":user.suite,
-            "city":user.city,
-            "zipcode":user.zipcode,
-            "geo":{
-                "lat":user.lat,
-                "long":user.lng
-            },
-            "phone":user.phone,
-            "websit":user.website
-        },
-        "company":{
-            "name":user.companyName,
-            "catchPhrase":user.catchPhrase,
-            "bs":user.companyBs
-        }
-        } for user in result.all() ]
-        return result
+#         result= [
+#         {
+#         "id":user.id,
+#         "name":user.name,
+#         "username":user.username,
+#         "email":user.email,
+#         "address":{
+#             "street":user.street,
+#             "suite":user.suite,
+#             "city":user.city,
+#             "zipcode":user.zipcode,
+#             "geo":{
+#                 "lat":user.lat,
+#                 "long":user.lng
+#             },
+#             "phone":user.phone,
+#             "websit":user.website
+#         },
+#         "company":{
+#             "name":user.companyName,
+#             "catchPhrase":user.catchPhrase,
+#             "bs":user.companyBs
+#         }
+#         } for user in result.all() ]
+#         return result
 
 
 def recupdatauser(data,nuser):
@@ -345,3 +339,5 @@ def addtrashtodo(idUser):
         todo=TrashTodo(m.userId,m.id,m.title,m.ETAT)
         base.session.add(todo)
         base.session.commit()
+
+base.initbase()
