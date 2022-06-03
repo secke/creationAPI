@@ -1,10 +1,8 @@
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, String, ForeignKey, Integer , TEXT
 import requests
 from sqlalchemy.orm import *
 import base
-
+from sqlalchemy.orm import *
 
 class User(base.Base):
     __tablename__='users'
@@ -23,9 +21,53 @@ class User(base.Base):
     companyName=Column(String(400))
     catchPhrase=Column(String(400))
     companyBs=Column(String(400))
-    # albums=relationship('Album', cascade = 'all, delete')
-    todos=relationship('Todo', cascade = 'all, delete')
-    posts=relationship('Post', cascade = 'all, delete')
+    albums=relationship('Album',cascade="all,delete")
+    todos=relationship('Todo',cascade="all,delete")
+    posts=relationship('Post',cascade="all,delete")
+
+    
+    def __init__(self,id,name,username,email,street,suite,city,zipcode,lat,lng,
+        phone, website, companyName,catchPhrase,companyBs):
+        self.id=id
+        self.name=name
+        self.username=username
+        self.email=email
+        self.street=street
+        self.suite=suite
+        self.city=city
+        self.zipcode=zipcode
+        self.lat=lat
+        self.lng=lng
+        self.phone=phone
+        self.website=website
+        self.companyName=companyName
+        self.catchPhrase=catchPhrase
+        self.companyBs=companyBs
+
+
+
+
+class TrashUser(base.Base):
+    __tablename__='trashusers'
+    id=Column(Integer, primary_key=True,autoincrement=True)
+    name=Column(String(50))
+    username=Column(String(50))
+    email=Column(String(50))
+    street=Column(String(200))
+    suite=Column(String(200))
+    city=Column(String(200))
+    zipcode=Column(String(200))
+    lat=Column(String(50))
+    lng=Column(String(50))
+    phone=Column(String(50))
+    website=Column(String(100))
+    companyName=Column(String(400))
+    catchPhrase=Column(String(400))
+    companyBs=Column(String(400))
+    # trashalbums=relationship('TrashAlbum',cascade="all,delete")
+    # trashtodos=relationship('TrashTodo',cascade="all,delete")
+    # trashposts=relationship('TrashPost',cascade="all,delete")
+
     
     def __init__(self,id,name,username,email,street,suite,city,zipcode,lat,lng,
         phone, website, companyName,catchPhrase,companyBs):
@@ -46,32 +88,36 @@ class User(base.Base):
         self.companyBs=companyBs
     
 
+
+
 ################## ALBUM #################################
 
 class Album(base.Base):
     __tablename__='album'
-    userId=Column(Integer)
+    userId=Column(Integer,ForeignKey("users.id"))
     id=Column(Integer, primary_key=True)
     title=Column(String(100))
     etat=Column(Integer)
-    photos=relationship("Photo")
-    photos=relationship("Photo", cascade='all, delete')
+    photos=relationship("Photo",cascade="all,delete")
     def __init__(self, userId, id, title):
-        self.userId=userId 
+        self.userId=userId
         self.id=id
         self.title=title
 
-################ TrashAlbum #######################################
+
+
 
 class TrashAlbum(base.Base):
     __tablename__='trashalbum'
     userId=Column(Integer)
     id=Column(Integer, primary_key=True)
     title=Column(String(100))
+    etat=Column(Integer)
     def __init__(self, userId, id, title):
         self.userId=userId
         self.id=id
         self.title=title
+
 
 ################ PHOTOS #######################################
 
@@ -107,7 +153,23 @@ class TrashPhoto(base.Base):
         self.url=url
         self.thumbnailUrl=thumbnailUrl
 
-############## TODOS ##############################
+
+
+# class TrashPhoto(base.Base):
+#     __tablename__='trashphotos'
+#     albumId=Column(Integer)
+#     id=Column(Integer, primary_key=True)
+#     title=Column(String(100))
+#     url=Column(String(200))
+#     thumbnailUrl=Column(String(200))
+#     # etat=Column(Integer)
+#     def __init__(self, albumId, id, title, url, thumbnailUrl):
+#         self.albumId=albumId
+#         self.id=id
+#         self.title=title
+#         self.url=url
+#         self.thumbnailUrl=thumbnailUrl
+      ############## TODOS ##############################
 
 class Todo(base.Base):
     __tablename__='todo'
@@ -123,6 +185,20 @@ class Todo(base.Base):
         self.title=title
         self.ETAT=ETAT
 
+
+class TrashTodo(base.Base):
+    __tablename__='trashtodo'
+    userId=Column(Integer,autoincrement=True)
+    id=Column(Integer, primary_key=True)
+    title=Column(String(200))
+    ETAT=Column(TEXT)
+    
+    # completed=Column(Boolean)
+    def __init__(self,userId, id, title, ETAT):
+        self.userId=userId
+        self.id=id
+        self.title=title
+        self.ETAT=ETAT
 ############## POST ########################
 
 class Post(base.Base):
@@ -132,7 +208,7 @@ class Post(base.Base):
     title=Column(String(200))
     body=Column(TEXT)
     etat=Column(Integer)
-    # comments=relationship("Comment")
+    comments=relationship("Comment",cascade="all,delete")
     def __init__(self, userId, id, title, body):
         self.userId=userId
         self.id=id
@@ -145,7 +221,7 @@ class Post(base.Base):
   
 class TrashPost(base.Base):
     __tablename__='trashpost'
-    userId=Column(Integer, ForeignKey('users.id'))
+    userId=Column(Integer)
     id=Column(Integer, primary_key=True)
     title=Column(String(200))
     body=Column(TEXT)
@@ -174,6 +250,98 @@ class Comment(base.Base):
         self.email=email
         self.body=body
 
+
+############# CORBEILLE COMMENTS ##########################
+
+class TrashComment(base.Base):
+    __tablename__='trashcomment'
+    postId=Column(Integer)
+    id=Column(Integer, primary_key=True)
+    name=Column(String(100))
+    email=Column(String(100))
+    body=Column(TEXT)
+    def __init__(self, postId, id, name, email, body):
+        self.postId=postId
+        self.id=id
+        self.name=name
+        self.email=email
+        self.body=body
+
 base.initbase()
 
 
+
+
+def users(result):
+    
+        result= [
+        {
+        "id":user.id,
+        "name":user.name,
+        "username":user.username,
+        "email":user.email,
+        "address":{
+            "street":user.street,
+            "suite":user.suite,
+            "city":user.city,
+            "zipcode":user.zipcode,
+            "geo":{
+                "lat":user.lat,
+                "long":user.lng
+            },
+            "phone":user.phone,
+            "websit":user.website
+        },
+        "company":{
+            "name":user.companyName,
+            "catchPhrase":user.catchPhrase,
+            "bs":user.companyBs
+        }
+        } for user in result.all() ]
+        return result
+
+
+def recupdatauser(data,nuser):
+    nuser.name=data["name"]
+    nuser.username=data["username"]
+    nuser.suite=data["suite"]
+    nuser.street=data["street"]
+    nuser.city=data["city"]
+    nuser.zipcode=data["zipcode"]
+    nuser.lat=data["lat"]
+    nuser.lng=data["lng"]
+    nuser.phone=data["phone"]
+    nuser.website=data["website"]
+    nuser.companyName=data["companyName"]
+    nuser.catchPhrase=data["catchPhrase"]
+    nuser.companyBs=data["companyBs"]
+
+
+def addtrashpostcom(idUser):
+      trashpost=base.session.query(Post).filter(Post.userId==idUser).all()
+      for el in trashpost:
+        post=TrashPost(el.userId,el.id,el.title,el.body)
+        base.session.add(post)
+        comment=base.session.query(Comment).filter(Comment.postId==el.id).all()
+        for l in comment:
+            com=TrashComment(l.postId,l.id,l.name,l.email,l.body)
+            base.session.add(com)
+        base.session.commit()
+            
+
+def addtrashalbumtof(idUser):
+    trashalbum=base.session.query(Album).filter(Album.userId==idUser).all()
+    for l in trashalbum:
+        album=TrashAlbum(l.userId,l.id,l.title)
+        base.session.add(album)
+        tof=base.session.query(Photo).filter(Photo.albumId==l.id).all()
+        for k in tof:
+            trashtof=TrashPhoto(k.albumId,k.id,k.title,k.url,k.thumbnailUrl)
+            base.session.add(trashtof)
+    base.session.commit()
+def addtrashtodo(idUser):
+    trashtodo=base.session.query(Todo).filter(Todo.userId==idUser).all()
+    for m in trashtodo:
+        todo=TrashTodo(m.userId,m.id,m.title,m.ETAT)
+        base.session.add(todo)
+        base.session.commit()

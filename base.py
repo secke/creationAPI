@@ -1,13 +1,9 @@
-from builtins import print
-
-import sys
-sys.path.append(".")
-sys.path.append("..")
+# from builtins import print
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
-import requests
-import model 
+
+
 
 
 
@@ -15,6 +11,7 @@ engine=create_engine('postgresql://groupe7:test_123@localhost:5432/flask_db')
 base_session = sessionmaker(bind=engine,autocommit=False,autoflush=False)
 session = base_session()
 Base = declarative_base()
+
 def initbase():
     Base.metadata.create_all(bind=engine)
 
@@ -31,7 +28,6 @@ def get_all(info):
 def get_infos_by_id(info,id):
     try:
         result = session.query(info).filter_by(id=id)
-        print(info,id)
         return result
     except Exception as e:
         print(e)
@@ -131,7 +127,10 @@ def getId(info):
 def postmethod(requete):
     session.add(requete)
     session.commit()
-    session.close()
+
+#########################"
+
+    
 
     
 
