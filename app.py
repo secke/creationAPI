@@ -1,5 +1,7 @@
 # from unittest import result
 from crypt import methods
+
+from matplotlib import use
 from model import *
 from base import *
 from flask import Flask, jsonify, request, render_template
@@ -33,18 +35,51 @@ def token_required(f):
 #################################### AJOUT DE SECUTITY ##################
 @app.route('/api_groupe_7/login', methods=['POST','GET'])
 def login():
-    if request.method=='POST':
-        data=request.get_json()
-        print(data)
-        utilisat=data['username']
-        mp=data['password']
+    # if request.method=='POST':
+    #     data=request.get_json()
+    #     print(data)
+    #     utilisat=data['username']
+    #     mp=data['password']
         # utilisat=request.form['username']
-        if (mp and utilisat) and mp == 'test123':
-            mon_token=jwt.encode({'nom':utilisat,'mp':mp},app.config['SECRET_KEY'])
-            return jsonify({'token': mon_token})
-    return render_template('index.html') 
+        # if (mp and utilisat) and mp == 'test123':
+        #     mon_token=jwt.encode({'nom':utilisat,'mp':mp},app.config['SECRET_KEY'])
+        #     return jsonify({'token': mon_token})
+    
+    data=request.get_json()
+    profil=data['Profil']
+    utilisat=data['username']
+    mp=data['password']
+
+    dataPro=[]
+    dataPass=[]
+    # dt=session.query(Connexion.username).filter(Connexion.profil=='lamine').first()
+    # dtp=session.query(Connexion.password).filter(Connexion.profil=='lamine').first()
+    dtnn=session.query(Connexion).filter(Connexion.username==utilisat).all()
+    for i in dtnn:
+        dataPro.append(i.profil)
+        dataPass.append(i.password)
+    if (profil in dataPro) and (mp in dataPass):
+        dtp=session.query(Connexion.password).filter(Connexion.username==utilisat).first()
+        dtuser=session.query(Connexion.username).filter(Connexion.username==utilisat).first()
+        MP=dtp[0]
+        user=dtuser[0]
+        try:
+            if  mp == MP:
+                mon_token=jwt.encode({'nom':user,'mp':MP},app.config['SECRET_KEY'])
+                return jsonify(token= mon_token)
+        except :
+            jsonify(mp=MP)
+    
+    else:
+        mon_token=jwt.encode({'nom':utilisat,'mp':mp},app.config['SECRET_KEY'])
+        connec=Connexion(profil=profil,username=utilisat,password=mp)
+        session.add(connec)
+        session.commit()
+        return jsonify(token= mon_token)   
+     
 ######################################## USERS ################################
 @app.route('/api_groupe_7/users', methods=['GET','POST'])
+@token_required
 def get_all_users():
     if request.method=='GET':
         result = base.get_all(User)
@@ -64,6 +99,7 @@ def create_user():
 
 
 @app.route('/api_groupe_7/users/<int:idUser>', methods=['GET'])
+@token_required
 def get_all_user_id(idUser):
     if request.method=='GET':
         result = base.get_infos_by_id(User,idUser)
@@ -104,6 +140,7 @@ def delete_user(idUser):
 
 
 @app.route('/api_groupe_7/users/<int:idUser>/albums', methods=['GET','DELETE'])
+@token_required
 def get_all_user_id_album(idUser):
     result=session.query(Album).filter(Album.userId==idUser).all()
     if request.method=='GET': 
@@ -120,6 +157,7 @@ def get_all_user_id_album(idUser):
 
 
 @app.route('/api_groupe_7/users/<int:idUser>/photos', methods=['GET','DELETE'])
+@token_required
 def get_all_user_id_photos(idUser):
     li=[]
     result1=session.query(Album).filter(Album.userId==idUser).all()
@@ -142,10 +180,11 @@ def get_all_user_id_photos(idUser):
     return "Supprimé"
 
 @app.route('/api_groupe_7/users/<int:idUser>/comments', methods=['GET','DELETE'])
+@token_required
 def get_all_user_id_comments(idUser):
     li=[]
     result1=session.query(Post).filter(Post.userId==idUser).all()
-    print(result1)
+    # print(result1)
     for i in result1:
        com=session.query(Comment).filter(Comment.postId==i.id).all()
        com=base.comments(com)
@@ -164,6 +203,7 @@ def get_all_user_id_comments(idUser):
         session.commit()
     return "Supprimé"
 @app.route('/api_groupe_7/users/<int:idUser>/posts', methods=['GET','DELETE'])
+@token_required
 def get_all_user_id_posts(idUser):
     result=session.query(Post).filter(Post.userId==idUser)
     if request.method=='GET':
@@ -182,6 +222,7 @@ def get_all_user_id_posts(idUser):
 ######################################################## POSTS##################################################################""
 
 @app.route('/api_groupe_7/posts', methods=['GET','POST'])
+# @token_required
 def get_all_post():
     if request.method=="GET":
         result=base.get_all(Post)
@@ -199,6 +240,7 @@ def get_all_post():
 
 
 @app.route('/api_groupe_7/posts/<int:postId>', methods=['GET','PUT','DELETE'])
+@token_required
 def get_post_by_id(postId):
     if request.method=='GET':
         result=base.get_infos_by_id(Post, postId)
@@ -216,7 +258,7 @@ def get_post_by_id(postId):
     else:
         npost=session.query(Post).get(postId)
         trash=TrashPost(npost.userId,npost.id,npost.title,npost.body)
-        print(trash)
+        # print(trash)
         session.add(trash)
         comment=session.query(Comment).filter(Comment.postId==postId).all()
         for i in comment:
@@ -228,10 +270,11 @@ def get_post_by_id(postId):
 
 
 @app.route('/api_groupe_7/posts/<int:postId>/comments', methods=['GET','DELETE'])
+@token_required
 def comment_post(postId):
     result=session.query(Comment).filter(Comment.postId==postId).all()
     if request.method=="GET":
-        print(result)
+        # print(result)
         if result:
             return jsonify(status="True",comments = base.comments(result))
         return jsonify(status="False")
@@ -253,6 +296,7 @@ def comment_post(postId):
 
 ########################################################## COMMMENT #############################################################
 @app.route('/api_groupe_7/comments', methods=['GET','POST'])
+@token_required
 def get_all_comment():
     if request.method=='GET':
         result=base.get_all(Comment)
@@ -268,6 +312,7 @@ def get_all_comment():
         return "ok"
 
 @app.route('/api_groupe_7/comments/<int:commentId>', methods=['GET','PUT','DELETE'])
+@token_required
 def get_comment_by_id(commentId):
     if request.method=='GET':
         result=base.get_infos_by_id(Comment, commentId)
@@ -298,6 +343,7 @@ def get_comment_by_id(commentId):
 
 ############################################################ ALBUMS ######################################################################""
 @app.route('/api_groupe_7/albums', methods=['GET','POST'])
+@token_required
 def get_all_album():
     if request.method=='GET':
         result=base.get_all(Album)
@@ -315,6 +361,7 @@ def get_all_album():
 
 
 @app.route('/api_groupe_7/albums/<int:albumId>', methods=['GET','PUT','DELETE'])
+@token_required
 def get_album_by_id(albumId):
 
     result=base.get_infos_by_id(Album, albumId)
@@ -327,6 +374,7 @@ def get_album_by_id(albumId):
 
 ###################################################################### PHOTOS##############################################################
 @app.route('/api_groupe_7/photos', methods=['GET'])
+@token_required
 def get_all_photo():
 
     result=base.get_all(Photo)
@@ -336,6 +384,7 @@ def get_all_photo():
     return jsonify(status="False")
 
 @app.route('/api_groupe_7/photos/<int:photoId>', methods=['GET', 'PUT', 'DELETE'])
+@token_required
 def get_photo_by_id(photoId):
     if request.method=='GET':
         result=base.get_infos_by_id(Photo, photoId)
@@ -362,6 +411,7 @@ def get_photo_by_id(photoId):
 
 
 @app.route('/api_groupe_7/todos', methods=['GET','POST'])
+@token_required
 def get_all_todo():
     if request.method=='GET':
         result=base.get_all(Todo)

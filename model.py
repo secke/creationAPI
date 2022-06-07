@@ -1,3 +1,4 @@
+from ast import Str
 from sqlalchemy import create_engine, Column, String, ForeignKey, Integer , TEXT
 import requests
 from sqlalchemy.orm import *
@@ -116,6 +117,19 @@ class TrashAlbum(base.Base):
         self.id=id
         self.title=title
 
+
+############### CONNEXION ########################
+
+class Connexion(base.Base):
+    __tablename__='connexion'
+    id=Column(Integer, primary_key=True,autoincrement=True)
+    profil=Column(String(100))
+    username=Column(String(100))
+    password=Column(String(100))
+    def __init__(self, profil, username, password):
+        self.profil=profil
+        self.username=username
+        self.password=password
 
 ################ PHOTOS #######################################
 
