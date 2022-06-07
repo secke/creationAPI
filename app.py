@@ -1,16 +1,49 @@
-from unittest import result
+# from unittest import result
+from crypt import methods
 from model import *
 from base import *
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
+from functools import wraps
+import jwt
 from flask_cors import CORS
 # import model
 
 
 app = Flask(__name__)
 CORS(app)
-# CORS(app, resources={"http://localhost:5002/api_groupe_7/": {"origins": "*"}})
-######################################## USERS##########################################################################
- 
+app.config['SECRET_KEY']='cestmaclesecrette'
+
+################## LA FONCTION DU TOKEN ####################
+def token_required(f):
+    @wraps(f)
+    def decodaz(*args,**kwargs):
+        token=request.args.get('token')
+        # donne=jwt.decode(token, app.config['SECRET_KEY'])
+
+        if not token:
+            return jsonify({'message': 'retourner sur la page login pour obtenir le token'})
+        try:
+            donne=jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            
+        except:
+            return jsonify({'message': 'le token est invalide','test':token})
+        return f(*args,**kwargs)
+    return decodaz
+
+#################################### AJOUT DE SECUTITY ##################
+@app.route('/api_groupe_7/login', methods=['POST','GET'])
+def login():
+    if request.method=='POST':
+        data=request.get_json()
+        print(data)
+        utilisat=data['username']
+        mp=data['password']
+        # utilisat=request.form['username']
+        if (mp and utilisat) and mp == 'test123':
+            mon_token=jwt.encode({'nom':utilisat,'mp':mp},app.config['SECRET_KEY'])
+            return jsonify({'token': mon_token})
+    return render_template('index.html') 
+######################################## USERS ################################
 @app.route('/api_groupe_7/users', methods=['GET','POST'])
 def get_all_users():
     if request.method=='GET':
@@ -18,7 +51,11 @@ def get_all_users():
         if result:
             return jsonify(status="True", users = base.users(result) )
         return jsonify(status="False")
-    else:
+
+@app.route('/api_groupe_7/create_user', methods=['POST'])
+@token_required
+def create_user():
+    if request.method=='POST':
         data=request.get_json()
         id_user=getId(User)
         users=User(id=id_user,name=data['name'],username=data['username'],email=data["email"],street=data['street'],suite=data['suite'],city=data['city'],zipcode=data["zipcode"],lat=data['lat'],lng=data['lng'],phone=data["phone"],website=data['website'],companyName=data["companyName"],catchPhrase=data["catchPhrase"],companyBs=["companyBs"])
@@ -26,7 +63,7 @@ def get_all_users():
         return "Ok"
 
 
-@app.route('/api_groupe_7/users/<int:idUser>', methods=['GET','PUT','DELETE'])
+@app.route('/api_groupe_7/users/<int:idUser>', methods=['GET'])
 def get_all_user_id(idUser):
     if request.method=='GET':
         result = base.get_infos_by_id(User,idUser)
@@ -34,14 +71,26 @@ def get_all_user_id(idUser):
             return jsonify(status="True", users = base.users(result) )
         
         return jsonify(status="False")
-    elif request.method=='PUT':
+    
+    
+
+@app.route('/api_groupe_7/update_user/<int:idUser>', methods=['GET','PUT'])
+@token_required
+def update_user(idUser):
+    nuser=session.query(User).get(idUser)
+    if request.method=='PUT':
         data=request.get_json()
         nuser=session.query(User).get(idUser)
         recupdatauser(data,nuser)
         base.session.commit()
-        return "Modifié"
-    else:
-        user=session.query(User).get(idUser)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+        return jsonify({'body':"Modifié"})
+    return jsonify({'status':True })
+
+@app.route('/api_groupe_7/delete_user/<int:idUser>', methods=['GET','POST'])
+@token_required
+def delete_user(idUser):
+    if request.method=='DELETE':
+        user=session.query(User).get(idUser)                                                                                                                                                                                                                                      
         trash=TrashUser(user.id,user.name,user.username,user.email,user.street,user.suite,user.city,user.zipcode,user.lat,user.lng,user.phone,user.website,user.companyName,user.catchPhrase,user.companyBs)
         session.add(trash)
         addtrashpostcom(idUser)
@@ -50,6 +99,8 @@ def get_all_user_id(idUser):
         session.delete(user)
         session.commit()
         return "Supprimé"
+    return jsonify({'statut':False})
+
 
 
 @app.route('/api_groupe_7/users/<int:idUser>/albums', methods=['GET','DELETE'])
@@ -141,6 +192,8 @@ def get_all_post():
         data=request.get_json()
         id_post=getId(Post)
         post=Post(userId=data["userId"],id=id_post,title=data["title"],body=data["body"])
+        base.session.add(post)
+        base.session.commit()
         postmethod(post)
         return "ok"
 
@@ -325,4 +378,4 @@ def get_all_todo():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(debug=True)

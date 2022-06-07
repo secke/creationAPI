@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projet Consommation API avec JavaScript</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleApi.css') }}">
+</head>
+<body>
+    <h1>CONFIRMER VOS INFORMATIONS DE CONNEXION POUR GÉNÉRER UN TOKEN</h1>
+    <div id="papaConnexion">
+        <form action="{{ url_for('login') }}" method="post" id="formConnexion">
+            <!-- <div class="champConnexion">
+                <label for="profil">Profil:</label>
+                <input type="text" name="profil" id="profil">
+                <small></small>
+            </div> -->
+            <div class="champConnexion">
+                <label for="username">Nom Utilisateur:</label>
+                <input type="text" name="username" id="username">
+                <small></small>
+            </div>
+            <div class="champConnexion">
+                <label for="password">Mot de Pass:</label>
+                <input type="text" name="password" id="password">
+                <small></small>
+            </div>
+            <div class="champConnexion">
+                <button type="submit" id="boutonConnexion">connecter</button>
+            </div>
+        </form>
+    </div>
+    <!-- <script src="js/api.js"></script> -->
+</body>
+</html>
