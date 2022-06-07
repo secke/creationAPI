@@ -1,3 +1,4 @@
+from ast import Str
 from sqlalchemy import create_engine, Column, String, ForeignKey, Integer , TEXT
 import requests
 from sqlalchemy.orm import *
@@ -117,6 +118,19 @@ class TrashAlbum(base.Base):
         self.title=title
 
 
+############### CONNEXION ########################
+
+class Connexion(base.Base):
+    __tablename__='connexion'
+    id=Column(Integer, primary_key=True,autoincrement=True)
+    profil=Column(String(100))
+    username=Column(String(100))
+    password=Column(String(100))
+    def __init__(self, profil, username, password):
+        self.profil=profil
+        self.username=username
+        self.password=password
+
 ################ PHOTOS #######################################
 
 class Photo(base.Base):
@@ -136,22 +150,6 @@ class Photo(base.Base):
 
 ################ TrashPhoto #######################################
 
-class TrashPhoto(base.Base):
-    __tablename__='trashphoto'
-    albumId=Column(Integer, ForeignKey('album.id'))
-    id=Column(Integer, primary_key=True)
-    title=Column(String(100))
-    url=Column(String(200))
-    thumbnailUrl=Column(String(200))
-    etat=Column(Integer)
-    def __init__(self, albumId, id, title, url, thumbnailUrl):
-        self.albumId=albumId
-        self.id=id
-        self.title=title
-        self.url=url
-        self.thumbnailUrl=thumbnailUrl
-
-
 
 class TrashPhoto(base.Base):
     __tablename__='trashphotos'
@@ -167,7 +165,7 @@ class TrashPhoto(base.Base):
         self.title=title
         self.url=url
         self.thumbnailUrl=thumbnailUrl
-      ############## TODOS ##############################
+      ############# TODOS ##############################
 
 class Todo(base.Base):
     __tablename__='todo'
@@ -296,19 +294,20 @@ class TrashComment(base.Base):
 
 
 def recupdatauser(data,nuser):
-    nuser.name=data["name"]
-    nuser.username=data["username"]
-    nuser.suite=data["suite"]
-    nuser.street=data["street"]
-    nuser.city=data["city"]
-    nuser.zipcode=data["zipcode"]
-    nuser.lat=data["lat"]
-    nuser.lng=data["lng"]
-    nuser.phone=data["phone"]
-    nuser.website=data["website"]
-    nuser.companyName=data["companyName"]
-    nuser.catchPhrase=data["catchPhrase"]
-    nuser.companyBs=data["companyBs"]
+    nuser.name=data.get("name") if data.get("name") else nuser.name
+    nuser.username=data.get("username") if data.get("username")else nuser.username
+    nuser.suite=data.get("suite") if data.get("suite") else nuser.suite
+    nuser.street=data.get("street") if data.get("street") else nuser.street
+    nuser.city=data.get("city") if data.get("city") else nuser.street
+    nuser.zipcode=data.get("zipcode") if data.get("zipcode") else nuser.zipcode
+    nuser.lat=data.get("lat") if data.get("lat") else nuser.lat
+    nuser.lng=data.get("lng") if data.get("lng") else nuser.lng
+    nuser.phone=data.get("phone") if data.get("phone") else nuser.phone
+    nuser.email= data.get("email") if data.get("email") else nuser.email
+    nuser.website=data.get("website") if data.get("website") else nuser.website
+    nuser.companyName=data.get("companyName") if data.get("companyName") else nuser.companyName
+    nuser.catchPhrase=data.get("catchPhrase") if data.get("catchPhrase") else nuser.catchPhrase
+    nuser.companyBs=data.get("") if data.get("") else nuser.companyBs
 
 
 def addtrashpostcom(idUser):

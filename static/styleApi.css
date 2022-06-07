@@ -1,0 +1,50 @@
+/* html{
+    background-color: rgb(45, 228, 185);
+} */
+h1{
+    text-align: center;
+    /* color:  rgb(225 48 8 / 95%); */
+    text-decoration:underline;
+}
+body{
+    width: 960x;
+    height: 1000px;
+}
+#papaConnexion{
+    width: 90%;
+    height: 50%;
+}
+
+
+#formConnexion{
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content:space-around;
+    margin  : 10%;
+    width: 90%;
+    height: 80%;
+    font-size: 40px;
+    color: blue;
+    text-decoration: underline;
+
+}
+.champConnexion{
+    display: flex;
+    flex-direction: column;
+}
+input{
+    width: 300px;
+    height: 40px;
+    border: solid 2px;
+    border-radius: 10px;
+    font-size: 30px;
+}
+#boutonConnexion{
+    width: max-content;
+    height: max-content;
+    color: green;
+    font-size: 25px;
+    border-radius: 10px;
+
+}
