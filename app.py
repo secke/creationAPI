@@ -1,7 +1,7 @@
 # from unittest import result
 from crypt import methods
 
-from matplotlib import use
+# from matplotlib import use
 from model import *
 from base import *
 from flask import Flask, jsonify, request, render_template
